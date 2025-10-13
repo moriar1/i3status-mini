@@ -15,7 +15,8 @@ Diagnostics:
       "altera-unroll-loops",
       "readability-isolate-declaration",
       "bugprone-easily-swappable-parameters",
-      "concurrency-mt-unsafe"
+      "concurrency-mt-unsafe",
+      "google-readability-todo"
       #"fuchsia-*",
       #"android-*",
       #"zircon-*",

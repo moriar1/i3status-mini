@@ -10,7 +10,6 @@ project(
 set(SOURCES src/main.c)
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
-# file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.c)
 
 # ---- Compiler Standard ----
 set_target_properties(
@@ -18,7 +17,6 @@ set_target_properties(
   PROPERTIES C_STANDARD 17
              C_STANDARD_REQUIRED ON
              C_EXTENSIONS OFF)
-# target_compile_features(${PROJECT_NAME} PRIVATE c_std_17)
 
 # ---- Inject Project Version as a Preprocessor Definition ----
 target_compile_definitions(${PROJECT_NAME}
@@ -148,11 +146,16 @@ endif()
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
+# TODO: Add linux support
+find_library(MIXER_LIBRARY
+    NAME mixer
+    PATHS /usr/lib /sr/local/lib
+)
+if(MIXER_LIBRARY)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${MIXER_LIBRARY})
+else()
+    message(FATAL_ERROR "libmixer.so not found")
+endif()
+
 # ---- Install ----
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
-
-# TODO (add gcc): if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-# target_compile_options(${PROJECT_NAME} PRIVATE -fcolor-diagnostics
-# -Weverything) elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
-# target_compile_options(${PROJECT_NAME} PRIVATE -fdiagnostics-color=always)
-# endif()
