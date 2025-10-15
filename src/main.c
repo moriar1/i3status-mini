@@ -14,8 +14,12 @@
 #include <time.h>
 #include <unistd.h>
 
-#define STR_LEN 20
+#define STR_LEN 15
 static volatile sig_atomic_t running = 1;
+static char time_str[STR_LEN];
+static char volume_str[STR_LEN];
+static char cpu_str[STR_LEN];
+
 static void sigint_handler(int __attribute__((unused)) signum) {
     running = 0;
 }
@@ -27,9 +31,8 @@ static void sigusr1(int __attribute__((unused)) signum) {
 static const char *get_time(void) {
     time_t t;
     struct tm tm_struct;
-    char *const time_str = malloc(STR_LEN * sizeof(char));
 
-    // TODO: no need to check errors
+    // NOTE: there is no need to check those errors (anyway)
     if (((t = time(NULL)) == (time_t)-1)) {
         perror("Failed get time");
         return "No time";
@@ -43,12 +46,11 @@ static const char *get_time(void) {
         fprintf(stderr, "Failed to format time");
         return "No time";
     }
+
     return time_str;
 }
 
 static const char *get_volume(void) {
-    char *const volume_str = malloc(STR_LEN * sizeof(char));
-
 #ifdef __FreeBSD__
     struct mixer *m;
 
@@ -58,8 +60,8 @@ static const char *get_volume(void) {
         err(1, "mixer_open: %s", mix_name);
     }
 
-    snprintf(volume_str, STR_LEN, "%s %.2f:%.2f", m->dev->name, (double)m->dev->vol.left,
-             (double)m->dev->vol.right);
+    // Pretty volume
+    snprintf(volume_str, STR_LEN, "%.2f", (double)m->dev->vol.right);
 
     if (mixer_close(m) == -1) {
         err(1, "mixer_close: %s", mix_name);
@@ -74,7 +76,6 @@ static const char *get_volume(void) {
 }
 
 static const char *get_cpu_usage(void) {
-    char *const cpu_str = malloc(STR_LEN * sizeof(char));
 #ifdef __FreeBSD__
     size_t size;
     long cp_time[CPUSTATES];
@@ -102,11 +103,10 @@ int main(void) {
         warn("Failed to set SIGTERM signal handler");
     }
 
-    struct timespec sleep_time = {.tv_sec = 0, .tv_nsec = 100};
+    struct timespec sleep_time = {.tv_sec = 5, .tv_nsec = 0};
     while (running) {
-        printf("Time\t%s\nSound\t%s\nCPU\t%s\n\n", get_time(), get_volume(),
-               get_cpu_usage());
+        printf("%s | %s\n", get_volume(), get_time());
+        fflush(stdout);
         nanosleep(&sleep_time, NULL);
-        // TODO: add free() or use static buffers or buffers from main
     }
 }

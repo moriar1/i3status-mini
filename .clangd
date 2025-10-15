@@ -16,7 +16,8 @@ Diagnostics:
       "readability-isolate-declaration",
       "bugprone-easily-swappable-parameters",
       "concurrency-mt-unsafe",
-      "google-readability-todo"
+      "google-readability-todo",
+      "cppcoreguidelines-avoid-non-const-global-variables"
       #"fuchsia-*",
       #"android-*",
       #"zircon-*",
