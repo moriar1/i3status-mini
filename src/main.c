@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/resource.h>
+#include <sys/signal.h>
 #include <sys/soundcard.h>
 #include <sys/sysctl.h>
 #include <time.h>
@@ -34,24 +35,10 @@ static void sigusr1(int __attribute__((unused)) signum) {
 }
 
 static const char *get_time(void) {
-    time_t t;
+    time_t t = time(NULL);
     struct tm tm_struct;
-
-    // NOTE: there is no need to check those errors (anyway)
-    if (((t = time(NULL)) == (time_t)-1)) {
-        warn("Failed get time");
-        return "No time";
-    }
-    if (localtime_r(&t, &tm_struct) == NULL) {
-        warn("Failed convert time");
-        return "No time";
-    }
-    if (strftime(time_str, STR_LEN * sizeof(char), "%m-%d %H:%M", &tm_struct) ==
-        0) {
-        fprintf(stderr, "Failed to format time");
-        return "No time";
-    }
-
+    localtime_r(&t, &tm_struct);
+    strftime(time_str, STR_LEN * sizeof(char), "%m-%d %H:%M", &tm_struct);
     return time_str;
 }
 
@@ -116,17 +103,15 @@ static const char *get_cpu_usage(void) {
 
 int main(void) {
     struct sigaction action;
+
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_handler = fatalsig;
     sigaction(SIGPIPE, &action, NULL);
     sigaction(SIGTERM, &action, NULL);
-    sigaction(SIGINT, &action, NULL);
 
     memset(&action, 0, sizeof(struct sigaction));
     action.sa_handler = sigusr1;
-    if (sigaction(SIGUSR1, &action, NULL) == -1) {
-        warn("Failed to set SIGUSR1 signal handler");
-    }
+    sigaction(SIGUSR1, &action, NULL);
 
     struct timespec sleep_time = {.tv_sec = 5, .tv_nsec = 0};
     while (running) {
