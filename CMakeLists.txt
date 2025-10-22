@@ -146,16 +146,5 @@ endif()
 find_package(Threads REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
 
-# TODO: Add linux support
-find_library(MIXER_LIBRARY
-    NAME mixer
-    PATHS /usr/lib /sr/local/lib
-)
-if(MIXER_LIBRARY)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${MIXER_LIBRARY})
-else()
-    message(FATAL_ERROR "libmixer.so not found")
-endif()
-
 # ---- Install ----
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)

@@ -17,7 +17,8 @@ Diagnostics:
       "bugprone-easily-swappable-parameters",
       "concurrency-mt-unsafe",
       "google-readability-todo",
-      "cppcoreguidelines-avoid-non-const-global-variables"
+      "cppcoreguidelines-avoid-non-const-global-variables",
+      "android-cloexec-open"
       #"fuchsia-*",
       #"android-*",
       #"zircon-*",

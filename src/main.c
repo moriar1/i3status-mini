@@ -1,18 +1,11 @@
 #include <err.h>
 #include <fcntl.h>
-#include <inttypes.h>
-#include <mixer.h>
 #include <signal.h>
-#include <stddef.h>
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <sys/resource.h>
-#include <sys/signal.h>
+#include <sys/soundcard.h>
 #include <sys/sysctl.h>
-#include <threads.h>
 #include <time.h>
-#include <unistd.h>
 
 #define STR_LEN 15
 static volatile sig_atomic_t running = 1;
@@ -20,6 +13,7 @@ static char time_str[STR_LEN];
 static char volume_str[STR_LEN];
 static char cpu_str[STR_LEN];
 
+// For main while loop interruption
 static void sigint_handler(int __attribute__((unused)) signum) {
     running = 0;
 }
@@ -34,11 +28,11 @@ static const char *get_time(void) {
 
     // NOTE: there is no need to check those errors (anyway)
     if (((t = time(NULL)) == (time_t)-1)) {
-        perror("Failed get time");
+        warn("Failed get time");
         return "No time";
     }
     if (localtime_r(&t, &tm_struct) == NULL) {
-        perror("Failed convert time");
+        warn("Failed convert time");
         return "No time";
     }
     if (strftime(time_str, STR_LEN * sizeof(char), "%m-%d %H:%M", &tm_struct) ==
@@ -52,20 +46,17 @@ static const char *get_time(void) {
 
 static const char *get_volume(void) {
 #ifdef __FreeBSD__
-    struct mixer *m;
+    const char mix_name[] = "/dev/mixer";
+    int mixfd = open(mix_name, O_RDONLY);
+    unsigned vol;
 
-    // Use default mixer (if exists)
-    const char *const mix_name = "/dev/mixer";
-    if ((m = mixer_open(mix_name)) == NULL) {
-        err(1, "mixer_open: %s", mix_name);
+    if (ioctl(mixfd, SOUND_MIXER_READ_VOLUME, &vol) == -1) {
+        warn("OSS: Cannot read mixer information");
+        vol = 0U;
     }
 
-    // Pretty volume
-    snprintf(volume_str, STR_LEN, "%.2f", (double)m->dev->vol.right);
-
-    if (mixer_close(m) == -1) {
-        err(1, "mixer_close: %s", mix_name);
-    }
+    vol &= 0x7fU;
+    snprintf(volume_str, STR_LEN, "%u%%", vol);
 
 #elif defined(__linux__)  // TODO
     snprintf(volume_str, STR_LEN, "No volume (TODO)");
@@ -82,7 +73,7 @@ static const char *get_cpu_usage(void) {
     size = sizeof cp_time;
 
     if (sysctlbyname("kern.cp_time", &cp_time, &size, NULL, 0) < 0) {
-        perror("Failed get kern.cp_time");
+        warn("Failed get kern.cp_time");
     }
     // TODO: get usage
     snprintf(cpu_str, STR_LEN, "%ld ", cp_time[2]);
