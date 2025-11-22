@@ -1,24 +1,24 @@
+#include <err.h>
+#include <signal.h>
+
 #ifdef __linux__
-// #define _POSIX_C_SOURCE 200809L
 #include <alloca.h>
 #include <alsa/asoundlib.h>
 #include <math.h>
+#include <stdbool.h>
+#include <strings.h>
+
 #elif defined(__FreeBSD__)
 #include <sys/sysctl.h>
-#endif
-
-#include <err.h>
 #include <fcntl.h>
-#include <signal.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
-#include <strings.h>
 #include <sys/resource.h>
 #include <sys/signal.h>
 #include <sys/soundcard.h>
-#include <time.h>
+#include <stdio.h>
 #include <unistd.h>
+#include <time.h>
+#include <string.h>
+#endif
 
 #define ALSA_VOLUME(channel)                                                    \
     err = snd_mixer_selem_get_##channel##_dB_range(elem, &min, &max) ||         \

@@ -1,25 +1,25 @@
-Diagnostics:
-  ClangTidy:
-    Add: ["*"]
-    Remove: [
-      "fuchsia-trailing-return",
-      "llvmlibc-*",
+# Diagnostics:
+  # ClangTidy:
+    # Add: ["*"]
+    # Remove: [
+      # "fuchsia-trailing-return",
+      # "llvmlibc-*",
 
-      "altera-struct-pack-align",
-      "cppcoreguidelines-avoid-magic-numbers",
-      "readability-magic-numbers",
-      "cppcoreguidelines-init-variables",
-      "readability-identifier-length",
-      "bugprone-assignment-in-if-condition",
-      "cert-err33-c",
-      "altera-unroll-loops",
-      "readability-isolate-declaration",
-      "bugprone-easily-swappable-parameters",
-      "concurrency-mt-unsafe",
-      "google-readability-todo",
-      "cppcoreguidelines-avoid-non-const-global-variables",
-      "android-cloexec-open",
-      "readability-function-cognitive-complexity"
+      # "altera-struct-pack-align",
+      # "cppcoreguidelines-avoid-magic-numbers",
+      # "readability-magic-numbers",
+      # "cppcoreguidelines-init-variables",
+      # "readability-identifier-length",
+      # "bugprone-assignment-in-if-condition",
+      # "cert-err33-c",
+      # "altera-unroll-loops",
+      # "readability-isolate-declaration",
+      # "bugprone-easily-swappable-parameters",
+      # "concurrency-mt-unsafe",
+      # "google-readability-todo",
+      # "cppcoreguidelines-avoid-non-const-global-variables",
+      # "android-cloexec-open",
+      # "readability-function-cognitive-complexity"
       #"fuchsia-*",
       #"android-*",
       #"zircon-*",
