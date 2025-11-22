@@ -18,7 +18,8 @@ Diagnostics:
       "concurrency-mt-unsafe",
       "google-readability-todo",
       "cppcoreguidelines-avoid-non-const-global-variables",
-      "android-cloexec-open"
+      "android-cloexec-open",
+      "readability-function-cognitive-complexity"
       #"fuchsia-*",
       #"android-*",
       #"zircon-*",

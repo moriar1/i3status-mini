@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.22)
 
 project(
-  MyProject
+  i3status-mini
   VERSION 0.1.0
-  DESCRIPTION "C Project"
+  DESCRIPTION "Simple implementation of i3status"
   LANGUAGES C)
 
 # ---- Sources and Includes ----
@@ -22,6 +22,11 @@ set_target_properties(
 target_compile_definitions(${PROJECT_NAME}
                            PRIVATE PROJECT_VERSION=\"${PROJECT_VERSION}\")
 
+# Add POSIX functions for Linux
+target_compile_definitions(${PROJECT_NAME}
+    PRIVATE
+    $<$<PLATFORM_ID:Linux>:_POSIX_C_SOURCE=200809L>
+)
 # ---- Compiler Hardening and Warning Flags ----
 set(COMMON_CLANG_FLAGS
     # Security and Safety
@@ -69,7 +74,8 @@ set(COMMON_CLANG_FLAGS
     -Wno-unsafe-buffer-usage
     -Wno-declaration-after-statement
     -Wno-conditional-uninitialized
-    -Wno-covered-switch-default)
+    -Wno-covered-switch-default
+    -Wno-disabled-macro-expansion)
 
 # ---- Common Linker Flags ----
 set(COMMON_LINK_FLAGS
@@ -143,8 +149,8 @@ if(ENABLE_SANITIZERS)
 endif()
 
 # ---- Threading lib ----
-find_package(Threads REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads)
+find_package(ALSA REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE ALSA::ALSA)
 
 # ---- Install ----
 install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION bin)
