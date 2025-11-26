@@ -7,7 +7,7 @@ project(
   LANGUAGES C)
 
 # ---- Sources and Includes ----
-set(SOURCES src/main.c)
+set(SOURCES src/main.c src/cpu_usage.c src/get_time.c src/volume.c)
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 

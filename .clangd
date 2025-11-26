@@ -26,7 +26,7 @@
       #"llvm-*",
       #"readability-identifier-naming",
       #"modernize-use-trailing-return-type"
-    ]
+    # ]
 
 # CompileFlags:
   # Add: [
