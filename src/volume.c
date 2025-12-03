@@ -24,9 +24,7 @@
     }
 #endif
 
-static char volume_str[STR_LEN];
-
-const char *get_volume(void) {
+void get_volume(char volume_str[static 1]) {
 #ifdef __FreeBSD__
     const char mixer_path[] = "/dev/mixer";
     int mixfd = open(mixer_path, O_RDONLY);
@@ -34,7 +32,7 @@ const char *get_volume(void) {
     if (mixfd == -1) {
         warn("OSS: Cannot open mixer");
         snprintf(volume_str, STR_LEN, "No volume");
-        return volume_str;
+        return;
     }
 
     unsigned vol;
@@ -47,13 +45,14 @@ const char *get_volume(void) {
     vol &= 0x7fU;
     snprintf(volume_str, STR_LEN, "%u%%", vol);
 
+// TODO: check memory leaks in error checking
 #elif defined(__linux__)
     int err;
     snd_mixer_t *m;
 
     if ((err = snd_mixer_open(&m, 0)) < 0) {
         warn("ALSA: Cannot open mixer: %s\n", snd_strerror(err));
-        // exit(1);
+        return;
     }
 
     const char *card = "default";
@@ -61,27 +60,27 @@ const char *get_volume(void) {
     if ((err = snd_mixer_attach(m, card)) < 0) {
         warn("ALSA: Cannot attach mixer to device: %s\n", snd_strerror(err));
         snd_mixer_close(m);
-        // exit(1);
+        return;
     }
 
     // Register this mixer
     if ((err = snd_mixer_selem_register(m, NULL, NULL)) < 0) {
         warn("ALSA: snd_mixer_selem_register: %s\n", snd_strerror(err));
         snd_mixer_close(m);
-        // exit(1);
+        return;
     }
 
     if ((err = snd_mixer_load(m)) < 0) {
         warn("ALSA: snd_mixer_load: %s\n", snd_strerror(err));
         snd_mixer_close(m);
-        // exit(1);
+        return;
     }
 
     snd_mixer_selem_id_t *sid;
     snd_mixer_selem_id_malloc(&sid);
     if (sid == NULL) {
         snd_mixer_close(m);
-        // exit(1);
+        return;
     }
 
     // Find the given mixer
@@ -95,7 +94,7 @@ const char *get_volume(void) {
              snd_mixer_selem_id_get_name(sid), snd_mixer_selem_id_get_index(sid));
         snd_mixer_close(m);
         snd_mixer_selem_id_free(sid);
-        // exit(1);
+        return;
     }
 
     // Get the volume range to convert the volume later
@@ -117,7 +116,7 @@ const char *get_volume(void) {
     const char *mixer_name = snd_mixer_selem_get_name(elem);
     if (!mixer_name) {
         warn("ALSA: NULL mixer_name.\n");
-        // exit(1);
+        return;
     }
 
     // Use linear mapping for raw register values or small ranges of 24 dB
@@ -145,5 +144,4 @@ cleanup:
 #else
     snprintf(volume_str, STR_LEN, "No volume");
 #endif
-    return volume_str;
 }
