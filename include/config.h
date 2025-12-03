@@ -3,7 +3,7 @@
 
 enum { STR_LEN = 16 };
 
-const char *get_cpu_usage(void);
-const char *get_time(void);
-const char *get_volume(void);
+void get_cpu_usage(char[static 1]);
+void get_time(char[static 1]);
+void get_volume(char[static 1]);
 #endif

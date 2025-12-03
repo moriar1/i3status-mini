@@ -11,8 +11,6 @@
 #include <sys/resource.h>
 #endif
 
-static char cpu_str[STR_LEN];
-
 struct cpu_usage {
 #if defined(__FreeBSD__)
     long user;
@@ -36,7 +34,7 @@ static struct cpu_usage *curr_cpus = NULL;
 #endif
 static struct cpu_usage prev_all = {0, 0, 0, 0, 0};
 
-const char *get_cpu_usage(void) {
+void get_cpu_usage(char cpu_str[static 1]) {
     struct cpu_usage curr_all = {0, 0, 0, 0, 0};
 
 #ifdef __FreeBSD__
@@ -74,7 +72,7 @@ const char *get_cpu_usage(void) {
     if (f == NULL) {
         warn("i3status: open %s\n", "/proc/stat");
         snprintf(cpu_str, STR_LEN, "No cpu");
-        return cpu_str;
+        return;
     }
     curr_cpu_count = get_nprocs();
     char line[4096];
@@ -84,7 +82,7 @@ const char *get_cpu_usage(void) {
         fclose(f);
         /* unexpected EOF or read error */
         snprintf(cpu_str, STR_LEN, "No cpu");
-        return cpu_str;
+        return;
     }
 
     for (int idx = 0; idx < curr_cpu_count; ++idx) {
@@ -92,18 +90,18 @@ const char *get_cpu_usage(void) {
             fclose(f);
             /* unexpected EOF or read error */
             snprintf(cpu_str, STR_LEN, "No cpu");
-            return cpu_str;
+            return;
         }
         int cpu_idx, user, nice, system, idle;
         if (sscanf(line, "cpu%d %d %d %d %d", &cpu_idx, &user, &nice, &system, &idle) != 5) {
             fclose(f);
             snprintf(cpu_str, STR_LEN, "No cpu");
-            return cpu_str;
+            return;
         }
         if (cpu_idx < 0 || cpu_idx >= cpu_count) {
             fclose(f);
             snprintf(cpu_str, STR_LEN, "No cpu");
-            return cpu_str;
+            return;
         }
         curr_cpus[cpu_idx].user = user;
         curr_cpus[cpu_idx].nice = nice;
@@ -129,5 +127,4 @@ const char *get_cpu_usage(void) {
 #else
     snprintf(cpu_str, STR_LEN, "No cpu");
 #endif
-    return cpu_str;
 }
