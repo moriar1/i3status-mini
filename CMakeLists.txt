@@ -80,7 +80,8 @@ set(CLANG_ONLY_FLAGS
 
     -Wunreachable-code-aggressive
     -Wgnu-zero-variadic-macro-arguments
-    # -Wthread-safety
+    -Wthread-safety
+    -Wthread-safety-beta
     -Weverything
     -Wno-unsafe-buffer-usage
     -Wno-declaration-after-statement

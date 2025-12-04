@@ -24,7 +24,14 @@
     }
 #endif
 
-void get_volume(char volume_str[static 1]) {
+static void get_volume_impl(char[static STR_LEN]);
+
+void* get_volume(void* volume_str) {
+    get_volume_impl((char*)volume_str);
+    return NULL;
+}
+
+static void get_volume_impl(char volume_str[static STR_LEN]) {
 #ifdef __FreeBSD__
     const char mixer_path[] = "/dev/mixer";
     int mixfd = open(mixer_path, O_RDONLY);
