@@ -26,9 +26,8 @@
 
 static void get_volume_impl(char[static STR_LEN]);
 
-void* get_volume(void* volume_str) {
-    get_volume_impl((char*)volume_str);
-    return NULL;
+void get_volume(void *volume_str) {
+    get_volume_impl((char *)volume_str);
 }
 
 static void get_volume_impl(char volume_str[static STR_LEN]) {

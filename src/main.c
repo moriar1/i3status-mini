@@ -1,10 +1,12 @@
 #include "config.h"
+#include "header.h"
 #include <err.h>
 #include <stdio.h>
 #include <signal.h>
 #include <time.h>
 #include <string.h>
-#include <pthread.h>
+
+static const int NUM_THREADS = 6;
 
 static volatile sig_atomic_t running = 1;
 
@@ -33,27 +35,16 @@ int main(void) {
     char time_buf[STR_LEN];
     char volume_buf[STR_LEN];
     struct timespec sleep_time = {.tv_sec = 1, .tv_nsec = 0};
-    pthread_t ntid[3];
+    tpool_t *tm = tpool_create(NUM_THREADS);
 
     while (running) {
-        if (pthread_create(&ntid[0], NULL, &get_time, time_buf) != 0) {
-            err(1, "pcreate");
-        }
-        if (pthread_create(&(ntid[1]), NULL, &get_cpu_usage, cpu_buf) != 0) {
-            err(1, "pcreate");
-        }
-        if (pthread_create(&ntid[2], NULL, &get_volume, volume_buf) != 0) {
-            err(1, "pcreate");
-        }
-
-        for (int i = 0; i < 3; i++) {
-            void *dummy;
-            if (pthread_join(ntid[i], &dummy) != 0) {
-                err(2, "pjoin");
-            }
-        }
+        tpool_add_work(tm, get_volume, volume_buf);
+        tpool_add_work(tm, get_cpu_usage, cpu_buf);
+        tpool_add_work(tm, get_time, time_buf);
+        tpool_wait(tm);
         printf("cpu: %s | vol: %s | %s\n", cpu_buf, volume_buf, time_buf);
         fflush(stdout);
         nanosleep(&sleep_time, NULL);
     }
+    tpool_destroy(tm);
 }

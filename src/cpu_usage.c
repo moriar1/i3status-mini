@@ -34,7 +34,7 @@ static struct cpu_usage *curr_cpus = NULL;
 #endif
 static struct cpu_usage prev_all = {0, 0, 0, 0, 0};
 
-void *get_cpu_usage(void *restrict cpu_str_) {
+void get_cpu_usage(void *restrict cpu_str_) {
     char *cpu_str = (char *)cpu_str_;
     struct cpu_usage curr_all = {0, 0, 0, 0, 0};
 
@@ -44,7 +44,7 @@ void *get_cpu_usage(void *restrict cpu_str_) {
     if (sysctlbyname("kern.cp_time", &cp_time, &size, NULL, 0) < 0) {
         warn("Failed get kern.cp_time");
         snprintf(cpu_str, STR_LEN, "No cpu");
-        return cpu_str;
+        return;
     }
 
     curr_all.user = cp_time[CP_USER];
@@ -73,7 +73,7 @@ void *get_cpu_usage(void *restrict cpu_str_) {
     if (f == NULL) {
         warn("i3status: open %s\n", "/proc/stat");
         snprintf(cpu_str, STR_LEN, "No cpu");
-        return (void *)1;
+        return;
     }
     curr_cpu_count = get_nprocs();
     char line[4096];
@@ -83,7 +83,7 @@ void *get_cpu_usage(void *restrict cpu_str_) {
         fclose(f);
         /* unexpected EOF or read error */
         snprintf(cpu_str, STR_LEN, "No cpu");
-        return (void *)1;
+        return;
     }
 
     for (int idx = 0; idx < curr_cpu_count; ++idx) {
@@ -91,18 +91,18 @@ void *get_cpu_usage(void *restrict cpu_str_) {
             fclose(f);
             /* unexpected EOF or read error */
             snprintf(cpu_str, STR_LEN, "No cpu");
-            return (void *)1;
+            return;
         }
         int cpu_idx, user, nice, system, idle;
         if (sscanf(line, "cpu%d %d %d %d %d", &cpu_idx, &user, &nice, &system, &idle) != 5) {
             fclose(f);
             snprintf(cpu_str, STR_LEN, "No cpu");
-            return (void *)1;
+            return;
         }
         if (cpu_idx < 0 || cpu_idx >= cpu_count) {
             fclose(f);
             snprintf(cpu_str, STR_LEN, "No cpu");
-            return (void *)1;
+            return;
         }
         curr_cpus[cpu_idx].user = user;
         curr_cpus[cpu_idx].nice = nice;
@@ -128,5 +128,5 @@ void *get_cpu_usage(void *restrict cpu_str_) {
 #else
     snprintf(cpu_str, STR_LEN, "No cpu");
 #endif
-    return (void *)0;
+    return;
 }

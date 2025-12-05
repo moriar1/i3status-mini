@@ -7,7 +7,7 @@ project(
   LANGUAGES C)
 
 # ---- Sources and Includes ----
-set(SOURCES src/main.c src/cpu_usage.c src/get_time.c src/volume.c)
+set(SOURCES src/main.c src/cpu_usage.c src/get_time.c src/volume.c src/tpool.c)
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 
@@ -147,7 +147,7 @@ set(RELWITHDEBINFO_FLAGS
 )
 set(RELWITHDEBINFO_LINK_FLAGS ${RELEASE_LINK_FLAGS})
 
-set(SANITIZER_FLAGS -fsanitize=address -fsanitize=undefined
+set(SANITIZER_FLAGS -fsanitize=thread -fsanitize=undefined
                     -fno-omit-frame-pointer)
 
 # ---- Apply Compiler and Linker Flags ----
